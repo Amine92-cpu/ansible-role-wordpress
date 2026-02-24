@@ -11,7 +11,7 @@ galaxy_info:
     - name: EL
       versions:
         - 8
-  categories:
+  galaxy_tags:
     - web
     - system
 dependencies: []
