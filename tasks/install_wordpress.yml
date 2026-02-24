@@ -1,0 +1,28 @@
+---
+- name: Remove index.html
+  file:
+    path: "{{ apache_web_root }}/index.html"
+    state: absent
+
+- name: Download WordPress
+  unarchive:
+    src: "https://wordpress.org/wordpress-{{ wp_version }}.tar.gz"
+    dest: /tmp
+    remote_src: yes
+
+- name: Copy WordPress files to web root
+  copy:
+    src: /tmp/wordpress/
+    dest: "{{ wp_install_dir }}"
+    remote_src: yes
+    owner: "{{ apache_user }}"
+    group: "{{ apache_user }}"
+    mode: '0755'
+
+- name: Configure wp-config.php
+  template:
+    src: wp-config.php.j2
+    dest: "{{ wp_install_dir }}/wp-config.php"
+    owner: "{{ apache_user }}"
+    group: "{{ apache_user }}"
+    mode: '0640'

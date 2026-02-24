@@ -1,0 +1,21 @@
+---
+- name: Configure Apache virtual host
+  template:
+    src: wordpress.conf.j2
+    dest: "{{ apache_config_dir }}/wordpress.conf"
+  notify: restart apache
+
+- name: Enable WordPress site (Debian)
+  command: a2ensite wordpress.conf
+  args:
+    creates: /etc/apache2/sites-enabled/wordpress.conf
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Enable rewrite module (Debian)
+  command: a2enmod rewrite
+  when: ansible_os_family == "Debian"
+  notify: restart apache
+
+- name: Ensure Apache is reloaded/restarted
+  meta: flush_handlers

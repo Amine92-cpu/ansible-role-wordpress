@@ -1,0 +1,36 @@
+---
+- name: Update cache (Debian)
+  apt:
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install required packages
+  package:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ [apache_package] + php_packages + [mariadb_package] + additional_packages }}"
+
+- name: Ensure services are started
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - "{{ apache_service }}"
+    - mariadb
+  when: ansible_connection != 'docker'
+
+- name: Fallback for Docker - Start MariaDB (as per instructions)
+  shell: "mysqld_safe --datadir={{ wp_mysql_datadir }} &"
+  when: ansible_connection == 'docker'
+  changed_when: false
+
+- name: Fallback for Docker - Start Apache
+  shell: |
+    {% if ansible_os_family == "Debian" %}
+    service apache2 start
+    {% else %}
+    /usr/sbin/httpd -DFOREGROUND &
+    {% endif %}
+  when: ansible_connection == 'docker'
+  changed_when: false

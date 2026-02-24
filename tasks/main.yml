@@ -1,0 +1,15 @@
+---
+- name: Include OS-specific variables
+  include_vars: "{{ ansible_os_family }}.yml"
+
+- name: Install packages
+  include_tasks: install_packages.yml
+
+- name: Setup Database
+  include_tasks: setup_db.yml
+
+- name: Install WordPress
+  include_tasks: install_wordpress.yml
+
+- name: Configure Apache
+  include_tasks: configure_apache.yml
